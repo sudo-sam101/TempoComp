@@ -1,6 +1,7 @@
 import React from "react";
 import { Bell, Settings, LogOut, User, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,13 +27,35 @@ interface HeaderProps {
 const Header = ({
   title = "Dashboard",
   notificationCount = 3,
-  userName = "Jane Doe",
-  userAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-  userRole = "Admin",
-  onLogout = () => console.log("Logout clicked"),
+  userName,
+  userAvatar,
+  userRole,
+  onLogout,
   onProfileClick = () => console.log("Profile clicked"),
   onSettingsClick = () => console.log("Settings clicked"),
 }: HeaderProps) => {
+  const { user, signOut } = useAuth();
+
+  // Use provided values or fallback to auth context
+  const displayName = userName || user?.user_metadata?.full_name || "User";
+  const displayRole =
+    userRole || (user?.user_metadata?.role === "admin" ? "Admin" : "Employee");
+  const avatarUrl =
+    userAvatar ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`;
+
+  // Use provided logout handler or fallback to auth context
+  const handleLogout = async () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      try {
+        await signOut();
+      } catch (error) {
+        console.error("Error signing out:", error);
+      }
+    }
+  };
   return (
     <header className="bg-background border-b border-border h-20 px-6 flex items-center justify-between w-full">
       <div className="flex items-center">
@@ -70,9 +93,9 @@ const Header = ({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
               <Avatar>
-                <AvatarImage src={userAvatar} alt={userName} />
+                <AvatarImage src={avatarUrl} alt={displayName} />
                 <AvatarFallback>
-                  {userName.slice(0, 2).toUpperCase()}
+                  {displayName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -80,9 +103,11 @@ const Header = ({
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{userName}</p>
+                <p className="text-sm font-medium leading-none">
+                  {displayName}
+                </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {userRole}
+                  {displayRole}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -96,7 +121,7 @@ const Header = ({
               <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onLogout}>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>

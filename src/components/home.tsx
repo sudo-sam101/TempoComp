@@ -7,6 +7,7 @@ import AuthLayout from "@/components/layout/AuthLayout";
 import LoginForm from "@/components/auth/LoginForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HomeProps {
   isAuthenticated?: boolean;
@@ -15,15 +16,19 @@ interface HomeProps {
 const Home = ({ isAuthenticated = false }: HomeProps) => {
   const navigate = useNavigate();
   const [showFeatures, setShowFeatures] = useState(false);
+  const { user, userRole } = useAuth();
 
   // Check if user is already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (user) {
       // Redirect to appropriate dashboard based on user role
-      // This would typically check the user's role from auth context/state
-      navigate("/admin-dashboard");
+      if (userRole === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/employee");
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [user, userRole, navigate]);
 
   // Animation variants for staggered animations
   const containerVariants = {
@@ -70,7 +75,7 @@ const Home = ({ isAuthenticated = false }: HomeProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground dark">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:24px_24px] opacity-25 pointer-events-none" />
 
@@ -88,7 +93,7 @@ const Home = ({ isAuthenticated = false }: HomeProps) => {
               <Shield className="h-8 w-8 text-primary" />
             </div>
             <h1 className="text-2xl font-bold ml-3 text-primary">
-              SecureComply
+              ComplianceGuard
             </h1>
           </div>
 
@@ -105,9 +110,9 @@ const Home = ({ isAuthenticated = false }: HomeProps) => {
             <Button
               size="lg"
               className="gap-2"
-              onClick={() => navigate("/admin-dashboard")}
+              onClick={() => navigate("/register")}
             >
-              Try Demo
+              Create Account
               <ArrowRight className="h-4 w-4" />
             </Button>
             <Button
@@ -129,7 +134,7 @@ const Home = ({ isAuthenticated = false }: HomeProps) => {
             >
               {features.map((feature, index) => (
                 <motion.div key={index} variants={itemVariants}>
-                  <Card className="h-full bg-card/80 backdrop-blur-sm border-border">
+                  <Card className="h-full bg-card shadow-sm border-border">
                     <CardContent className="p-6">
                       <div className="mb-4">{feature.icon}</div>
                       <h3 className="text-lg font-semibold mb-2">
@@ -176,9 +181,12 @@ const Home = ({ isAuthenticated = false }: HomeProps) => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 bg-background/80 backdrop-blur-sm">
+      <footer className="border-t border-border py-6 bg-background">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2023 SecureComply, Inc. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} ComplianceGuard, Inc. All rights
+            reserved.
+          </p>
           <div className="mt-2 space-x-4">
             <a
               href="#"

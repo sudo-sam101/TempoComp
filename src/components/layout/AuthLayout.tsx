@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 const AuthLayout = ({ children = <LoginForm /> }: AuthLayoutProps) => {
   return (
-    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4 dark">
+    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
       {/* Background pattern */}
       <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:24px_24px] opacity-25 pointer-events-none" />
 
@@ -17,7 +17,9 @@ const AuthLayout = ({ children = <LoginForm /> }: AuthLayoutProps) => {
         <div className="bg-primary/10 p-3 rounded-full">
           <Shield className="h-8 w-8 text-primary" />
         </div>
-        <h1 className="text-2xl font-bold ml-3 text-primary">SecureComply</h1>
+        <h1 className="text-2xl font-bold ml-3 text-primary">
+          ComplianceGuard
+        </h1>
       </div>
 
       {/* Main content area */}
@@ -31,7 +33,10 @@ const AuthLayout = ({ children = <LoginForm /> }: AuthLayoutProps) => {
 
       {/* Company info */}
       <div className="mt-4 text-xs text-center text-muted-foreground">
-        <p>© 2023 SecureComply, Inc. All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} ComplianceGuard, Inc. All rights
+          reserved.
+        </p>
         <div className="mt-2 space-x-4">
           <a
             href="#"

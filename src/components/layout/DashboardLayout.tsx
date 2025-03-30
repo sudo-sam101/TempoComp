@@ -1,7 +1,8 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "@/components/navigation/Sidebar";
 import Header from "@/components/navigation/Header";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardLayoutProps {
   userRole?: "admin" | "employee";
@@ -13,17 +14,30 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({
-  userRole = "admin",
-  userName = "Jane Doe",
-  userAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
+  userRole,
+  userName,
+  userAvatar,
   notificationCount = 3,
   pageTitle = "Dashboard",
   children,
 }: DashboardLayoutProps) => {
+  const { user, userRole: authUserRole, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  // Use props or fallback to auth context
+  const role = userRole || authUserRole || "employee";
+  const name = userName || user?.user_metadata?.full_name || "User";
+  const avatar =
+    userAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
+
   // Handle logout functionality
-  const handleLogout = () => {
-    console.log("Logging out...");
-    // Add actual logout logic here
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   // Handle profile click
@@ -41,7 +55,7 @@ const DashboardLayout = ({
   return (
     <div className="flex h-screen w-full bg-background text-foreground">
       {/* Sidebar */}
-      <Sidebar userRole={userRole} />
+      <Sidebar userRole={role} />
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-hidden">
@@ -49,9 +63,9 @@ const DashboardLayout = ({
         <Header
           title={pageTitle}
           notificationCount={notificationCount}
-          userName={userName}
-          userAvatar={userAvatar}
-          userRole={userRole === "admin" ? "Admin" : "Employee"}
+          userName={name}
+          userAvatar={avatar}
+          userRole={role === "admin" ? "Admin" : "Employee"}
           onLogout={handleLogout}
           onProfileClick={handleProfileClick}
           onSettingsClick={handleSettingsClick}
